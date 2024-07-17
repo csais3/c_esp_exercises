@@ -24,7 +24,8 @@ void display_list(Student *root);
 int get_input(char *text);
 void deallocate(Student **root);
 void push(Student **root, int id, int mathGrade, int scienceGrade);
-void insert_after_id(Student **root, int index, int id, int mathGrade, int scienceGrade);
+void insert(Student **root, int index, int id, int mathGrade, int scienceGrade);
+void delete_by_id(Student **root, int id);
 
 int main() {
 
@@ -36,13 +37,6 @@ int main() {
     int id;
     int mathGrade;
     int scienceGrade;
-    int getId;
-
-    append(&root, 1, 10, 10);
-    append(&root, 2, 9, 9);
-    append(&root, 3, 8, 8);
-    append(&root, 4, 7, 7);
-    append(&root, 5, 6, 6);
 
     while (option != 3) {
         option = 0;
@@ -57,9 +51,7 @@ int main() {
             id = get_input("Student's ID: ");
             mathGrade = get_input("Enter math grade: ");
             scienceGrade = get_input("Enter science grade: ");
-            getId = get_input("Enter the ID to place student after it: ");
-
-            insert_after_id(&root, getId, id, mathGrade, scienceGrade);
+            append(&root, id, mathGrade, scienceGrade);
             break;
         case 2: // display Student's info
             display_list(root);
@@ -69,7 +61,6 @@ int main() {
             break;
         }
     }
-    printf("Exiting program...");
 
     deallocate(&root); // deallocated heap memory
     return 0;
@@ -101,10 +92,25 @@ void append(Student **root, int id, int mathGrade, int scienceGrade) {
     }
 }
 
-void insert_after_id(Student **root, int findID, int id, int mathGrade, int scienceGrade) {
+void push(Student **root, int id, int mathGrade, int scienceGrade) {
+    /*
+    *    Adds an element at the beginning of the linked list
+    */
+    Student *newStudent = malloc(sizeof(Student));
+    if (newStudent == NULL) {
+        exit(3);
+    }
+    newStudent->id = id;
+    newStudent->mathMark = mathGrade;
+    newStudent->scienceMark = scienceGrade;
+    newStudent->nextStudent = *root;
+    *root = newStudent;
+}
+
+void insert(Student **root, int index, int id, int mathGrade, int scienceGrade) {
     // Inserts a student after the index given
     Student *newStudent = malloc(sizeof(Student));
-
+    int i = 0;
     if (newStudent == NULL) {
         exit(3);
     }
@@ -113,15 +119,42 @@ void insert_after_id(Student **root, int findID, int id, int mathGrade, int scie
     newStudent->id = id;
     newStudent->mathMark = mathGrade;
     newStudent->scienceMark = scienceGrade;
-    while (current != NULL) {
-        if (current->id == findID) {
-            newStudent->nextStudent = current->nextStudent;
-            current->nextStudent = newStudent;
-            return;
-        }
+    for (i = 0; i < index; i++) {
         current = current->nextStudent;
     }
-    printf("Unable to find ID: %d\n", findID);
+    newStudent->nextStudent = current->nextStudent;
+    current->nextStudent = newStudent;
+}
+
+void delete_by_id(Student **root, int id) {
+    // deletes a student by ID
+    if (*root == NULL) {
+        return;
+    }
+    Student *current = *root;
+    while (current != NULL) {
+
+        if ((*root)->id == id) {
+            Student *studentToRemove = *root;
+            *root = (*root)->nextStudent;
+            free(studentToRemove);
+            return;
+        }
+
+        if (current->nextStudent->id == id) {
+            Student *studentToRemove = current->nextStudent;
+            if (current->nextStudent->nextStudent == NULL){
+                current->nextStudent = NULL;
+            } else {
+                current->nextStudent = current->nextStudent->nextStudent;
+            }
+            free(studentToRemove);
+            return;
+            
+        }
+
+        current = current->nextStudent;
+    }
 }
 
 void print_menu() {
