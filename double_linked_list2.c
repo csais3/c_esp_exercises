@@ -24,6 +24,8 @@ void init_list(Student **tail, Student **head, int studentID,
 void inser_student_after_id(Student **tail, int afterID, int id, int mathGrade, int scienceGrade);
 void deallocate(Student **tail, Student **head);
 void push_student(Student **tail, int id, int mathGrade, int scienceGrade);
+void append_student(Student**root, int id, int mathGrade, int scienceGrade);
+void insert_after(Student *insertAfter, int id, int mathGrade, int scienceGrade);
 void display_students_list(Student *tail);
 void delete_student_by_id(Student **tail, int id);
 void print_menu();
@@ -32,55 +34,18 @@ int get_input(char *text);
 int main() {
     Student *tail = NULL;
     Student *head = NULL;
-    int option = 0;
-    int id;
-    int mathGrade;
-    int scienceGrade;
-    int getId;
 
-    push_student(&tail, 1, 10, 10);
+    init_list(&tail, &head, 1, 10, 10);
     push_student(&tail, 2, 9, 9);
     push_student(&tail, 3, 8, 8);
-    push_student(&tail, 4, 7, 7);
-    push_student(&tail, 5, 6, 6);
+    push_student(&tail, 5, 7, 7);
 
-    //inser_student_after_id(&tail, 2, 6, 10, 10);
-    while (option != 4) {
-        option = 0;
-        print_menu();
-        //option = get_option();
-        printf("Selection an option: ");
-        scanf("%d", &option);
+    insert_after(tail, 7, 4, 4);
 
-        switch (option)
-        {
-        case 1: // Insert Entry
-            id = get_input("Student's ID: ");
-            mathGrade = get_input("Enter math grade: ");
-            scienceGrade = get_input("Enter science grade: ");
-            getId = get_input("Enter the ID to place student after it: ");
-            if(tail != NULL) {
-                inser_student_after_id(&tail, getId, id, mathGrade, scienceGrade);
-            } else {
-                init_list(&tail, &head, id ,mathGrade, scienceGrade);
-            }
-            printf("Inserted new student with ID: %d\n", id);
-            break;
-        case 2: // display Student's info
-            display_students_list(tail);
-            break;
-        case 3:
-            id = get_input("Student's ID to delete: ");
-            delete_student_by_id(&tail, id);
-            printf("Student with ID: %d deleted.\n", id);
-            break;
-        
-        default:
-            break;
-        }
-    }
-    printf("Exiting program...");
+    display_students_list(tail);
 
+    printf("head id: %d\n", head->id);
+    
     deallocate(&tail, &head);
 
     return 0;
@@ -148,6 +113,46 @@ void push_student(Student **tail, int id, int mathGrade, int scienceGrade) {
     (*tail)->prevStudent = newStudent;
    }
    *tail = newStudent;
+}
+
+void append_student(Student**head, int id, int mathGrade, int scienceGrade) {
+    /*
+        Appends student at the end of the list
+    */
+    Student *newStudent = malloc(sizeof(Student));
+    if (newStudent == NULL) {
+        exit(1);
+    }
+
+    newStudent->id = id;
+    newStudent->mathMark = mathGrade;
+    newStudent->scienceMark = scienceGrade;
+    newStudent->nextStudent = NULL;
+    if (*head == NULL) {
+        newStudent->prevStudent = NULL;
+        *head = newStudent;
+        
+    } else {
+        newStudent->prevStudent = *head;
+        (*head)->nextStudent = newStudent;
+        *head = newStudent;
+    }
+
+}
+
+void insert_after(Student *insertAfter, int id, int mathGrade, int scienceGrade) {
+    Student *newStudent = malloc(sizeof(Student));
+    newStudent->id = id;
+    newStudent->mathMark = mathGrade;
+    newStudent->scienceMark = scienceGrade;
+    newStudent->prevStudent = insertAfter;
+    newStudent->nextStudent = insertAfter->nextStudent;
+
+    if (insertAfter->nextStudent != NULL) {
+        insertAfter->nextStudent->prevStudent = newStudent;
+    }
+    
+    insertAfter->nextStudent = newStudent;
 }
 
 void delete_student_by_id(Student **tail, int id) {
